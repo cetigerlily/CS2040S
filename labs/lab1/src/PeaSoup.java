@@ -38,9 +38,7 @@ public class PeaSoup {
         if(rests.isEmpty()) {
             System.out.println("Anywhere is fine I guess");
         } else {
-            for(int c = 0; c < rests.size(); c++) {
-                System.out.println(rests.get(c));
-            }
+            System.out.println(rests.get(0));
         }
     }
 }
