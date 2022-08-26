@@ -1,8 +1,3 @@
-/**
- * Celeste Tigerlily Cheah Kae
- * A0245928R
- */
-
 import java.util.ArrayList;
 import java.util.Scanner;
 
