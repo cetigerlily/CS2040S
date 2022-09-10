@@ -9,39 +9,41 @@ public class BestRelayTeam {
     public static void main(String[] args) {
         Scanner s = new Scanner(System.in);
         int numOfRunners = Integer.parseInt(s.nextLine());
-        Runner[] allRunners = new Runner[numOfRunners];
-        Runner[] trialTeam = new Runner[4];
-        Runner[] bestTeam = new Runner[4];
-
+        ArrayList<Runner> allRunners = new ArrayList<>();
+        ArrayList<Runner> bestTeam = new ArrayList<>();
+    
         for(int i = 0; i < numOfRunners; i++) {
             String input = s.nextLine();
             String[] runnerInfo = input.split(" ");
-            Runner currRunner = new Runner(runnerInfo[0], 
-                Double.parseDouble(runnerInfo[1]), Double.parseDouble(runnerInfo[2]));
-            allRunners[i] = currRunner;
+            allRunners.add(new Runner(runnerInfo[0], Double.parseDouble(runnerInfo[1]), Double.parseDouble(runnerInfo[2])));
         }
 
-        Arrays.sort(allRunners);
-      
-        Runner bestFirst = allRunners[numOfRunners - 1];
-        for(int i = 4; i < numOfRunners; i++) {
-            if(bestFirst.getFirstTime() > allRunners[i].getFirstTime()) {
-                bestFirst = allRunners[i];
+        Collections.sort(allRunners); /* sorting the runners based on their second times */
+
+        double testTime = 0;
+        double bestTime = 100;
+
+        for(int i = 0; i < numOfRunners; i++) {
+            ArrayList<Runner> testTeam = new ArrayList<>();
+            testTeam.add(allRunners.get(i));
+            testTime = allRunners.get(i).getFirstTime();
+
+            for(int j = 0; testTeam.size() < 4; j++) {
+                if(j != i) {
+                    testTeam.add(allRunners.get(j));
+                    testTime += allRunners.get(j).getSecondTime();
+                }
+            }
+
+            if(testTime < bestTime) {
+                bestTeam = testTeam;
+                bestTime = testTime;
             }
         }
 
-        bestTeam[0] = bestFirst;
-        bestTeam[1] = allRunners[0];
-        bestTeam[2] = allRunners[1];
-        bestTeam[3] = allRunners[2];
-
-        double totalTime = bestTeam[0].getFirstTime() + bestTeam[1].getSecondTime() 
-            + bestTeam[2].getSecondTime() + bestTeam[3].getSecondTime();
-
-        System.out.println(totalTime);
+        System.out.println(bestTime);
         for(int i = 0; i < 4; i++) {
-            System.out.println(bestTeam[i].getName());
+            System.out.println(bestTeam.get(i).getName());
         }
     }
 }
-// choosing the fastest 3 in second time doesn't always result in the fastest team
