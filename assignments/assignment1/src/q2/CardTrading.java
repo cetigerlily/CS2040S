@@ -5,41 +5,48 @@ package q2;
  */
 
 import java.util.*;
-
 public class CardTrading {
     public static void main(String[] args) {
         Scanner s = new Scanner(System.in);
         String firstInput = s.nextLine();
         String[] numInfo = firstInput.split(" ");
-
+        
         int numOfCards = Integer.parseInt(numInfo[0]);
         int numOfTypes = Integer.parseInt(numInfo[1]);
         int numOfCombos = Integer.parseInt(numInfo[2]);
 
-        ArrayList<Card> deck = new ArrayList<>();
-
         String secondInput = s.nextLine();
-        String[] deckInfo = secondInput.split(" ");
+        String[] deck = secondInput.split(" ");
 
-        /* first intialize the deck with the proper buy/sell info */
-        for(int i = 0; i < numOfTypes; i++) {
-            String input = s.nextLine();
-            String[] cardPriceInfo = input.split(" ");
+        /*  an array which holds the information of card types in the deck */
+        ArrayList<Card> cardInfo = new ArrayList<>();
 
-            deck.add(new Card(0 /* simply put a value for now */, Integer.parseInt(cardPriceInfo[0]), Integer.parseInt(cardPriceInfo[1])));
+        for(int t = 0; t < numOfTypes; t++) {
+            int buyPrice = s.nextInt();
+            int sellPrice = s.nextInt();
+            cardInfo.add(new Card(t + 1, buyPrice, sellPrice));        
         }
+
+        for(int n = 0; n < numOfCards; n++) {
+            int temp = Integer.parseInt(deck[n]);
+            cardInfo.get(temp - 1).updateRepeats();
+        }
+
+        Collections.sort(cardInfo);
+
+        long profit = 0;
         
-        for(int i = 0; i < numOfCards; i++) {
-            for(int j = 0; j < numOfCards; j++) {
-                if(Integer.parseInt(deckInfo[i]) == deck.get(j).getValue()) {
-                    deck.add(deck.get(j));
-                    deck.get(j).updateRepeats();
-                } else {
-                    break;
-                }
-            }
-            deck.get(i).updateNumber(Integer.parseInt(deckInfo[i]));
+        /* make a pair from the first k cards - subtract the cost from the profit */
+        for(int k = 0; k < numOfCombos; k++) {
+            profit -= cardInfo.get(k).getBuyPrice();
         }
-        System.out.println(deck);
+
+        /* sell the rest of the remaining cards in the deck */
+        if(numOfTypes > numOfCombos) {
+            for(int i = numOfCombos; i < numOfTypes; i++) {
+                profit += cardInfo.get(i).getSellPrice();
+            }
+        }
+        System.out.println(profit);
     }
 }
