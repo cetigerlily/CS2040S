@@ -1,2 +1,2 @@
 # CS2040S
-archive of the code i've written for CS2040S S1 22/23
+archive of the code i wrote for CS2040S S1 22/23
