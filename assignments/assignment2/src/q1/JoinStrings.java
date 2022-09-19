@@ -15,32 +15,23 @@ public class JoinStrings {
         Kattio io = new Kattio(System.in, System.out);
         int numOfWords = Integer.parseInt((io.getWord()));
         ArrayList<StringBuilder> words = new ArrayList<>();
-        ArrayList<Integer> instructions = new ArrayList<>();
 
         for(int i = 0; i < numOfWords; i++) {
             String input = io.getWord();
             words.add(new StringBuilder(input));
         }
 
+        int tracker = 0;
         for(int j = 0; j < numOfWords - 1; j++) {
             int aString = io.getInt();
             int bString = io.getInt();
             
-            if(!instructions.contains(aString)) {
-                instructions.add(aString - 1);
-            }
-            if(!instructions.contains(bString)) {
-                instructions.add(bString -1);
-            }
+            words.get(aString - 1).append(words.get(bString - 1));
+            tracker = aString - 1;
         }
 
-        StringBuilder result = new StringBuilder();
-        for(int k = 0; k < instructions.size(); k++) {
-            result.append(words.get(instructions.get(k)));
-        }
         long elapsedTime = System.nanoTime() - startTime;
-
-        System.out.println(result.toString() + " and it took " + elapsedTime/1000000 + " milliseconds");
+        System.out.println(words.get(tracker).toString() + " and it took " + elapsedTime/1000000 + " milliseconds");
         io.flush();
     }
 }
