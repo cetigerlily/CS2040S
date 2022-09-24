@@ -10,34 +10,44 @@ import java.io.*;
 
 public class Teque {
     public static void main(String[] args) {
-        HashMap<Integer, Integer> start = new HashMap<>();
-        HashMap<Integer, Integer> end = new HashMap<>(); // <key, value> = <index, value>
-
-        int endHeadIndex = -1;
-        int endTailIndex = 0;
-        int startHeadIndex = -1;
-
         Kattio io = new Kattio(System.in, System.out);
         long numOfOps = io.getLong();
+
+        HashMap<Integer, Integer> start = new HashMap<>();
+        HashMap<Integer, Integer> end = new HashMap<>();
+
+        int endHeadIndex = 0;
+        int endTailIndex = 1;
+        int startHeadIndex = 0;
+        int startTailIndex = 1;
 
         for(int i = 0; i < numOfOps; i++) {
             String operation = io.getWord();
             int variable = io.getInt();
             
             if(operation.equals("push_back")) {
-                pushBack(end, endTailIndex++, variable);
+                push(end, endTailIndex, variable);
+                endTailIndex += 1;
             }
             
             if (operation.equals("push_front")) {
-                pushFront(start, startHeadIndex--, variable);
+                push(start, startHeadIndex, variable);
+                startHeadIndex -= 1;
             }
             
-            if (operation.equals("push_middle")) {
-                if(start.size() > end.size()) {
-                    pushFront(end, endTailIndex, variable);
-                } else {
-                    pushBack(start, startHeadIndex, variable);
-                }
+            if(operation.equals("push_middle")) {
+                push(start, startTailIndex, variable);
+                startTailIndex += 1;
+            }
+            
+            if(start.size() == end.size() + 2) {
+                reshuffle(end, start, endHeadIndex, startTailIndex - 1);
+                startTailIndex -= 1;
+                endHeadIndex -= 1;
+            } else if(start.size() + 2 == end.size()) {
+                reshuffle(start, end, startTailIndex, endHeadIndex + 1);
+                startTailIndex += 1;
+                endHeadIndex += 1;
             }
 
             if(operation.equals("get")) {
@@ -48,15 +58,15 @@ public class Teque {
                 }
             }
         }
-
         io.flush();
     }
-    
-    public static void pushBack(HashMap<Integer, Integer> map, int index, int variable) {
+
+    public static void push(HashMap<Integer, Integer> map, int index, int variable) {
         map.put(index, variable);
     }
 
-    public static void pushFront(HashMap<Integer, Integer> map, int index, int variable) {
-        map.put(index, variable);
+    public static void reshuffle(HashMap<Integer, Integer> small, HashMap<Integer, Integer> large, int smallIndex, int largeIndex) {
+        small.put(smallIndex, large.get(largeIndex));
+        large.remove(largeIndex);
     }
 }
