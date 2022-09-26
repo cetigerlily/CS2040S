@@ -10,34 +10,32 @@ import java.io.*;
 
 public class JoinStrings {
     public static void main(String[] args) throws Exception {
-        Kattio io = new Kattio(System.in);
+        Kattio io = new Kattio(System.in, System.out);
         int numOfWords = Integer.parseInt((io.getWord()));
-        ArrayList<StringBuilder> words = new ArrayList<>();
-        ArrayList<Integer> instructions = new ArrayList<>();
-
+        HashMap<Integer, String> words = new HashMap<>(); /* <index of word, word> */
+        Instruction[] instructions = new Instruction[numOfWords];
+        
         for(int i = 0; i < numOfWords; i++) {
             String input = io.getWord();
-            words.add(new StringBuilder(input));
+            words.put(i, input);
+            instructions[i] = new Instruction(i);
         }
 
+        int tracker = 0;
         for(int j = 0; j < numOfWords - 1; j++) {
-            int aString = io.getInt();
-            int bString = io.getInt();
+            int a = io.getInt() - 1;
+            int b = io.getInt() - 1;
 
-            if(!instructions.contains(aString - 1)) {
-                instructions.add(aString - 1);
-            }
-            if(!instructions.contains(bString - 1)) {
-                instructions.add(bString -1);
+            instructions[a].setNextInstruction(instructions[b]);
+            if(j == numOfWords - 2) {
+                tracker = a;
             }
         }
 
-        StringBuilder result = new StringBuilder();
-        for(int k = 0; k < instructions.size(); k++) {
-            result.append(words.get(instructions.get(k)));
+        for(Instruction temp = instructions[tracker]; temp != null; temp = temp.getNextInstruction()) {
+            io.print(words.get(temp.getIndex()));
         }
 
-        io.println(result.toString());
         io.flush();
     }
 }
