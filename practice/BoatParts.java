@@ -1,4 +1,3 @@
-package week7;
 /**
  * Celeste Tigerlily Cheah Kae
  * A0245928R
