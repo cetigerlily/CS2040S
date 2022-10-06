@@ -18,22 +18,28 @@ public class AssigningWorkstations {
 
         for(int j = 0; j < numOfResearchers; j++) {
             Researcher thisResearcher = researcherQ.poll();
- 
+
+            while(!(workstationQ.isEmpty())) {
+                if(thisResearcher.getArrivalTime() <= workstationQ.peek().getLockTime()) {
+                    if((workstationQ.peek().getLockTime() - m) <= thisResearcher.getArrivalTime()) { // can use the WS because the researcher arrived after avail time
+                        workstationQ.poll();
+                    } else {
+                        unlocked++;
+                    }
+                    Workstation newWorkstation = new Workstation(thisResearcher.getAvailableTime() + m);
+                    workstationQ.add(newWorkstation);
+                    break; // since found an existing WS or unlocked a new WS for the researcher, can break
+                } else if(thisResearcher.getArrivalTime() > workstationQ.peek().getLockTime()) { // can't use exiting WS if researcher arrives after lock time)
+                    workstationQ.poll();
+                }
+            }
+
             if(workstationQ.isEmpty()) {
-                Workstation newWorkstation = new Workstation(thisResearcher.getArrivalTime() + thisResearcher.getWorkTime() + m);
+                Workstation newWorkstation = new Workstation(thisResearcher.getAvailableTime() + m);
                 workstationQ.add(newWorkstation);
                 unlocked++;
-            } else if(!(workstationQ.isEmpty())) {
-                if(workstationQ.peek().getLockTime() - m <= thisResearcher.getArrivalTime()) { // if it's available before researcher arrives
-                    workstationQ.poll();
-                    workstationQ.add(new Workstation(thisResearcher.getArrivalTime() + thisResearcher.getWorkTime() + m));
-                    
-                } else if(workstationQ.peek().getLockTime() - m > thisResearcher.getArrivalTime()) {
-                    Workstation newWorkstation = new Workstation(thisResearcher.getArrivalTime() + thisResearcher.getWorkTime() + m);
-                    workstationQ.add(newWorkstation);
-                    unlocked++;
-                }
-            } 
+            }
+
         }
         io.println(numOfResearchers - unlocked);
         io.flush();
