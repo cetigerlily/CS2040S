@@ -1,5 +1,4 @@
 import java.util.*;
-import java.lang.*;
 import java.io.*;
 
 public class IntegerLists {
@@ -50,7 +49,6 @@ public class IntegerLists {
                 if(j == BAPC.length - 1) {
                     pw.println(starting.toString().replaceAll("\\s", ""));
                 }
-
             }
         }
         pw.flush();
