@@ -1,8 +1,3 @@
-package week6;
-/**
- * Celeste Tigerlily Cheah Kae
- * A0245928R
- */
 import java.util.*;
 import java.lang.*;
 import java.io.*;
