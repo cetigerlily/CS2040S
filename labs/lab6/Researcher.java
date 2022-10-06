@@ -15,6 +15,10 @@ public class Researcher implements Comparable<Researcher> {
         return workTime;
     }
 
+    public int getAvailableTime() {
+        return getArrivalTime() + getWorkTime();
+    }
+
     @Override
     public int compareTo(Researcher other) {
         return this.getArrivalTime() - other.getArrivalTime(); // ranking them based on the arrivalTime
