@@ -1,3 +1,8 @@
+package week6;
+/**
+ * Celeste Tigerlily Cheah Kae
+ * A0245928R
+ */
 import java.util.*;
 import java.lang.*;
 import java.io.*;
@@ -11,38 +16,46 @@ public class IntegerLists {
         for(int i = 0; i < numOfTestCases; i++) {
             String[] BAPC = br.readLine().split("");
             int numOfElements = Integer.parseInt(br.readLine());
-            String[] input = br.readLine().split("");
-            
-            Stack<String> ogElements = new Stack<>();
-            for(int j = 0; j < input.length; j++) {
-                if((input[j].equals("[")) || (input[j].equals(",")) || (input[j].equals("]"))) {
-                    continue;
-                } else {
-                    ogElements.push(input[j]);
-                }
+
+            String temp = br.readLine();
+            String[] elements;
+
+            if(temp.length() > 2) {
+                elements = temp.substring(1, temp.length() - 1).split(",");
+            } else {
+                elements = new String[0];
             }
 
-            Stack<String> startingElements = ogElements;
-            Stack<String> endingElements = new Stack<>();
+            Deque<Integer> integerList = new LinkedList<>();
+            for(int j = elements.length - 1; j >= 0; j--) {
+                integerList.addFirst(Integer.parseInt(elements[j]));
+            }
 
-            for(int k = 0; k < BAPC.length; k++) {
-                if(BAPC[k].equals("D") && !(startingElements.empty())) {
-                    startingElements.pop();
-                    if(!(startingElements.empty())) {
-                        pw.println(startingElements);
-                    } else if(startingElements.empty()) {
+            Deque<Integer> starting = integerList;
+            Deque<Integer> ending = new LinkedList<>();
+
+            for(int j = 0; j < BAPC.length; j++) {
+                if(BAPC[j].equals("R")) {
+                    for(int k = 0; k < numOfElements; k++) {
+                        ending.addFirst(starting.removeFirst());
+                    }
+                    starting = ending;
+                    ending = new LinkedList<>();
+                }
+                
+                if(BAPC[j].equals("D")) {
+                    if(starting.isEmpty()) {
                         pw.println("error");
+                        break;
+                    } else {
+                        starting.removeFirst();
                     }
                 }
 
-                if(BAPC[k].equals("R") && !(startingElements.empty())) {
-                    for(int l = 0; l < numOfElements; l++) {
-                        endingElements.push(startingElements.pop());
-                    }
-                    pw.println(endingElements);
-                    startingElements = endingElements; // reset them for the next instruction
-                    endingElements.clear();
+                if(j == BAPC.length - 1) {
+                    pw.println(starting.toString().replaceAll("\\s", ""));
                 }
+
             }
         }
         pw.flush();
