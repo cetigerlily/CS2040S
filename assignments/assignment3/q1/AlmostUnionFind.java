@@ -39,41 +39,90 @@ public class AlmostUnionFind {
                 set.get(i).add(i);    
             }
 
+            /* debugging */
+            for(int i = 1; i < numOfInts + 1; i++) {
+                int parentOfI = parent.get(i);
+                io.println("The parent of " + i + " is " + parentOfI);
+            }
+
             for(int i = 0; i < numOfCommands; i++) { // after m lines, it will be the next test-case if there are more
                 int command = io.getInt();
                 if(command == 1) {
                     int p = io.getInt();
                     int q = io.getInt();
-                    
+
                     int parentP = parent.get(p);
                     int parentQ = parent.get(q);
+                    ArrayList<Integer> setParentP = set.get(parentP);
+                    ArrayList<Integer> setParentQ = set.get(parentQ);
+
+                    /* debugging */
+                    io.println("P: " + p + " Q: " + q);
+                    io.println("Parent P: " + parentP + " Parent Q: " + parentQ);
 
                     if(parentP != parentQ) {
                         int tracker = set.get(parentP).size() - set.get(parentQ).size(); // size of set under parent of p - size of set under parent of q
-                        if(tracker > 0) { // p > q, add q to p
-                            set.get(parentP).addAll(set.get(parentQ)); // add set under parent of q to the set under parent of p
-                            for(int j = 1; j < set.get(parentQ).size() + 1; j++) { // for each value in the set under parent of q, change it's parent to the parent of p
-                                parent.put(set.get(parentQ).get(j), parentP); // update the parent of the elem under parent of Q to be the parent of P
+                        if(tracker >= 0) { // p > q, add q to p
+                            setParentP.addAll(setParentQ); // add set under parent of q to the set under parent of p
+                            for(int element : setParentQ) {
+                                parent.put(element, parentP);
                             }
                             set.put(q, new ArrayList<>());
                         } else {
-                            set.get(parentQ).addAll(set.get(parentP));
-                            for(int j = 1; j < set.get(parentP).size() + 1; j++) {
-                                parent.put(set.get(parentP).get(j), parentQ); // update the parent of the elem under parent of Q to be the parent of P
+                            setParentQ.addAll(setParentP); // add set under parent of q to the set under parent of p
+                            for(int element : setParentP) {
+                                parent.put(element, parentQ);
                             }
                             set.put(p, new ArrayList<>());
                         }
                     }
+
+                } else if(command == 2) { // move
+                    int p = io.getInt();
+                    int q = io.getInt();
+
+                    int parentP = parent.get(p);
+                    int parentQ = parent.get(q);
+                    ArrayList<Integer> setParentP = set.get(parentP);
+                    ArrayList<Integer> setParentQ = set.get(parentQ);
+
+                    if(parentP != parentQ) {
+                        setParentQ.add(p);
+                        parent.put(p, parentQ);
+                        setParentP.remove(setParentP.indexOf(p));
+
+                        /* if((parentP == p) && (setParentP.size() > 1)) { // if it was a root AND had elements under it, have to readjust
+                            int newParent = setParentP.get(1);
+                            setParentP.remove(p); // how does it know whether to remove an index or object?
+                            for(int element : setParentP) {
+                                parent.put(element, newParent);
+                            }
+                            parent.put(p, parentQ);
+                        } else {
+                            parent.put(p, parentQ);
+                            setParentP.remove(p);
+                        }*/
+                    }
+                } else if(command == 3) { // numAndSum
+                    int p = io.getInt();
+                    int parentP = parent.get(p);
+                    ArrayList<Integer> setParentP = set.get(parentP);
+  
+                    long numOfElements = setParentP.size();
+                    long sumOfElements = 0;
+
+                    for(int element : setParentP) {
+                        sumOfElements += element;
+                    }
+
+                    io.println(numOfElements + " " + sumOfElements);
                 }
             }
 
-            // debugging
-/*  HashMap<Integer, Integer> parent = new HashMap<>(); // <int, parent>
-            HashMap<Integer, ArrayList<Integer>> set = new HashMap<>(); // <int, set that belongs to int> */
-
+            /* debugging */
             for(int i = 1; i < numOfInts + 1; i++) {
                 int parentOfI = parent.get(i);
-                io.println("The parent of " + i + " is " + parentOfI);
+                io.println("The parent of " + i + " is now " + parentOfI);
             }
             io.flush();
         }
