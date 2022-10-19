@@ -8,11 +8,6 @@ import java.util.*;
  */
 
 public class AlmostUnionFind {
-    int[] parents; // an array which is 1-indexed and parent[i] refers to the parents of i
-    ArrayList<Integer> sets = new ArrayList<>(); // collection of the elements in a set
-
-    // could also do a hashmap where <root, set> ?
-
     public void union(long p, long q) {
     }
 
@@ -26,21 +21,31 @@ public class AlmostUnionFind {
 
     public static void main(String[] args) {
         Kattio io = new Kattio(System.in, System.out);
-        long numOfInts = io.getLong();
-        long numOfCommands = io.getLong();
 
+        while(io.hasMoreTokens()) {
+            long numOfInts = io.getLong();
+            long numOfCommands = io.getLong();
+            int[] parents; // an array which is 1-indexed and parent[i] refers to the parents of i
+            ArrayList<Integer>[] sets; // array of collections of the elements in a set
 
-        for(int i = 0; i < numOfCommands; i++) {
-            long command = io.getLong();
-            if(command == 1) { // union
-                long p = io.getLong();
-                long q = io.getLong();
-                union(p, q);
+            for(int i = 1; i < numOfInts + 1; i++) {
+                parents[i] = i;
+                sets[i] = new ArrayList<>();
+                sets[i].add(i);
+            }
 
-            } else if(command == 2) { // move
+            for(int i = 0; i < numOfCommands; i++) { // after m lines, it will be the next test-case
+                long command = io.getLong();
+                if(command == 1) { // union
+                    long p = io.getLong();
+                    long q = io.getLong();
+                    union(p, q);
 
-            } else if(command == 3) {
+                } else if(command == 2) { // move
 
+                } else if(command == 3) {
+
+                }
             }
         }
     }
