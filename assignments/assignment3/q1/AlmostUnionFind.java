@@ -10,12 +10,17 @@ public class AlmostUnionFind {
             int numOfCommands = io.getInt();
 
             HashMap<Integer, Integer> parent = new HashMap<>(); // <int, parent>
-            HashMap<Integer, ArrayList<Integer>> set = new HashMap<>(); // <int, set that belongs to int>
+            ArrayList<Integer>[] set = new ArrayList[numOfInts + 1];
+            // HashMap<Integer, ArrayList<Integer>> set = new HashMap<>(); // <int, set that belongs to int>
+
+            for(int i = 1; i < numOfInts + 1; i++) {
+                io.println("Value: " + i + " Parent: " + parent.get(i));
+            }
 
             for(int i = 1; i < numOfInts + 1; i++) {
                 parent.put(i, i);
-                set.put(i, new ArrayList<>());
-                set.get(i).add(i);    
+                set[i] = new ArrayList<>();
+                set[i].add(i);
             }
 
             for(int i = 0; i < numOfCommands; i++) { // after m lines, it will be the next test-case if there are more
@@ -24,53 +29,49 @@ public class AlmostUnionFind {
                     int p = io.getInt();
                     int q = io.getInt();
 
-                    int parentP = parent.get(p);
-                    int parentQ = parent.get(q);
-
-                    if(parentP != parentQ) {
-                        int tracker = set.get(parentP).size() - set.get(parentQ).size(); // size of set under parent of p - size of set under parent of q
+                    if(parent.get(p) != parent.get(q)) {
+                        long tracker = set[parent.get(p)].size() - set[parent.get(q)].size();
                         if(tracker >= 0) { // p > q, add q to p
-                            set.get(parentP).addAll(set.get(parentQ)); // add set under parent of q to the set under parent of p
-                            for(int element : set.get(parentQ)) {
-                                parent.put(element, parentP);
+                            set[parent.get(p)].addAll(set[parent.get(q)]); // add set under parent of q to the set under parent of p
+                            for(int element : set[parent.get(q)]) {
+                                parent.put(element, parent.get(p));
                             }
-                            set.put(q, new ArrayList<>());
+                            set[q] = new ArrayList<>();
                         } else {
-                            set.get(parentQ).addAll(set.get(parentP)); // add set under parent of q to the set under parent of p
-                            for(int element : set.get(parentP)) {
-                                parent.put(element, parentQ);
+                            set[parent.get(q)].addAll(set[parent.get(p)]); // add set under parent of q to the set under parent of p
+                            for(int element : set[parent.get(p)]) {
+                                parent.put(element, parent.get(q));
                             }
-                            set.put(p, new ArrayList<>());
+                            set[p] = new ArrayList<>();
                         }
                     }
 
                 } else if(command == 2) { // move
                     int p = io.getInt();
                     int q = io.getInt();
-
-                    int parentP = parent.get(p);
-                    int parentQ = parent.get(q);
-
-                    if(parentP != parentQ) {
-                        set.get(parentQ).add(p);
-                        parent.put(p, parentQ);
-                        set.get(parentP).remove(set.get(parentP).indexOf(p));
+                    if(parent.get(p) != parent.get(q)) {
+                        set[parent.get(q)].add(p);
+                        parent.put(p, parent.get(q));
+                        set[parent.get(p)].remove(set[parent.get(p)].indexOf(p));
                     }
                 } else if(command == 3) { // numAndSum
                     int p = io.getInt();
-                    int parentP = parent.get(p);
 
-                    long numOfElements = set.get(parentP).size();
+                    long numOfElements = set[parent.get(p)].size();
                     long sumOfElements = 0;
 
-                    for(int element : set.get(parentP)) {
+                    for(int element : set[parent.get(p)]) {
                         sumOfElements += element;
                     }
-
-                    io.println(numOfElements + " " + sumOfElements);
+                    System.out.println(numOfElements + " " + sumOfElements);
                 }
             }
-            io.flush();
+
+            for(int i = 1; i < numOfInts + 1; i++) {
+                System.out.println("Value: " + i + " New Parent: " + parent.get(i));
+            }
+            
         }
+        io.flush();
     }
 }
