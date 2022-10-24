@@ -6,71 +6,75 @@ public class AlmostUnionFind {
         Kattio io = new Kattio(System.in, System.out);
 
         while(io.hasMoreTokens()) {
-            int numOfInts = io.getInt();
-            int numOfCommands = io.getInt();
+            long numOfInts = io.getLong();
+            long numOfCommands = io.getLong();
 
-            HashMap<Integer, Integer> parent = new HashMap<>(); // <int, parent>
-            ArrayList<Integer>[] set = new ArrayList[numOfInts + 1];
-            // HashMap<Integer, ArrayList<Integer>> set = new HashMap<>(); // <int, set that belongs to int>
+            HashMap<Long, Long> parent = new HashMap<>(); // <int, parent>
+            HashMap<Long, Long> size = new HashMap<>();
+            HashMap<Long, Long> sum = new HashMap<>();
 
-            for(int i = 1; i < numOfInts + 1; i++) {
-                io.println("Value: " + i + " Parent: " + parent.get(i));
-            }
-
-            for(int i = 1; i < numOfInts + 1; i++) {
+            for(long i = 1; i < numOfInts + 1; i++) {
                 parent.put(i, i);
-                set[i] = new ArrayList<>();
-                set[i].add(i);
+                size.put(i, (long) 1);
+                sum.put(i, i);
             }
 
             for(int i = 0; i < numOfCommands; i++) { // after m lines, it will be the next test-case if there are more
                 int command = io.getInt();
                 if(command == 1) {
-                    int p = io.getInt();
-                    int q = io.getInt();
+                    long p = io.getLong();
+                    long q = io.getLong();
 
-                    if(parent.get(p) != parent.get(q)) {
-                        long tracker = set[parent.get(p)].size() - set[parent.get(q)].size();
+                    long parentP = parent.get(p);
+                    long parentQ = parent.get(q);
+
+                    if(parentP != parentQ) {
+                        long tracker = size.get(parentP) - size.get(parentQ);
                         if(tracker >= 0) { // p > q, add q to p
-                            set[parent.get(p)].addAll(set[parent.get(q)]); // add set under parent of q to the set under parent of p
-                            for(int element : set[parent.get(q)]) {
-                                parent.put(element, parent.get(p));
-                            }
-                            set[q] = new ArrayList<>();
+                            size.put(parentP, size.get(parentP) + size.get(parentQ));
+                            // size.put(parentQ, (long) 0);
+
+                            sum.put(parentP, sum.get(parentP) + sum.get(parentQ));
+                            // sum.put(parentQ, (long) 0);
+
+                            parent.put(parentQ, parentP);
                         } else {
-                            set[parent.get(q)].addAll(set[parent.get(p)]); // add set under parent of q to the set under parent of p
-                            for(int element : set[parent.get(p)]) {
-                                parent.put(element, parent.get(q));
-                            }
-                            set[p] = new ArrayList<>();
+                            size.put(parentQ, size.get(parentQ) + size.get(parentP));
+                            // size.put(parentP, (long) 0);
+
+                            sum.put(parentQ, sum.get(parentQ) + sum.get(parentP));
+                            // sum.put(parentP, (long) 0);
+
+                            parent.put(parentP, parentQ);
                         }
                     }
 
                 } else if(command == 2) { // move
-                    int p = io.getInt();
-                    int q = io.getInt();
-                    if(parent.get(p) != parent.get(q)) {
-                        set[parent.get(q)].add(p);
-                        parent.put(p, parent.get(q));
-                        set[parent.get(p)].remove(set[parent.get(p)].indexOf(p));
+                    long p = io.getLong();
+                    long q = io.getLong();
+
+                    long parentP = parent.get(p);
+                    long parentQ = parent.get(q);
+                    
+                    if(parentP != parentQ) {
+                        size.put(parentP, size.get(parentP) - 1);
+                        size.put(parentQ, size.get(parentQ) + 1);
+                        sum.put(parentP, sum.get(parentP) - p);
+                        sum.put(parentQ, sum.get(parentQ) + p);
+
+                        parent.put(p, parentQ);
                     }
+
                 } else if(command == 3) { // numAndSum
-                    int p = io.getInt();
+                    long p = io.getLong();
+                    long parentP = parent.get(p);
 
-                    long numOfElements = set[parent.get(p)].size();
-                    long sumOfElements = 0;
+                    long numOfElements = size.get(parentP);
+                    long sumOfElements = sum.get(parentP);
 
-                    for(int element : set[parent.get(p)]) {
-                        sumOfElements += element;
-                    }
                     System.out.println(numOfElements + " " + sumOfElements);
                 }
             }
-
-            for(int i = 1; i < numOfInts + 1; i++) {
-                System.out.println("Value: " + i + " New Parent: " + parent.get(i));
-            }
-            
         }
         io.flush();
     }
