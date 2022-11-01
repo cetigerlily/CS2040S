@@ -26,7 +26,11 @@ public class Grasshopper {
     public static void main(String[] args) {
         Kattio io = new Kattio(System.in, System.out);
 
-        while(io.hasMoreTokens()) {
+        while(true) {
+            if(!io.hasMoreTokens()) {
+                break;
+            }
+
             R = io.getInt();
             C = io.getInt();
             int gR = io.getInt() - 1;
