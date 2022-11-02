@@ -11,8 +11,6 @@ public class TravelTheSkies {
         HashMap<Integer, ArrayList<Flight>> flightsPerDay = new HashMap<>(); // all flights on a given day
         HashMap<Integer, ArrayList<Integer>> peoplePerDay = new HashMap<>(); // # of people per day at given airports - <airport id, list of people per day>
 
-        // 0-based indexing of origin, destination, airport, and days
-
         for(int i = 0; i < numOfFlights; i++) {
             int origin = io.getInt() - 1;
             int destination = io.getInt() - 1; 
@@ -51,7 +49,7 @@ public class TravelTheSkies {
 
                 int currentDay = 0;
                 // determine whether or not this flight can optimally fly based on people at airport
-                while((fullCapacity >= actualCapacity) && (currentDay < 8)) { // maximum 8 days
+                while((fullCapacity >= actualCapacity) && (currentDay < numOfDays)) { // maximum 8 days
                     int totalPeople = peoplePerDay.get(origin).get(currentDay);
 
                     if(fullCapacity == actualCapacity) {
@@ -67,7 +65,6 @@ public class TravelTheSkies {
                         actualCapacity += difference;
                         peoplePerDay.get(origin).add(currentDay, peoplePerDay.get(origin).get(currentDay) - difference); // update the value, not everyone got on the flight
                     }
-
                     currentDay += 1;
                 }
 
@@ -85,7 +82,6 @@ public class TravelTheSkies {
         } else {
             io.println("suboptimal");
         }
-
         io.flush();
     }
 }
@@ -111,5 +107,60 @@ class Flight {
 
     public int getCapacity() {
         return this.capacity;
+    }
+}
+
+class Kattio extends PrintWriter {
+    public Kattio(InputStream i) {
+        super(new BufferedOutputStream(System.out));
+        r = new BufferedReader(new InputStreamReader(i));
+    }
+    public Kattio(InputStream i, OutputStream o) {
+        super(new BufferedOutputStream(o));
+        r = new BufferedReader(new InputStreamReader(i));
+    }
+
+    public boolean hasMoreTokens() {
+        return peekToken() != null;
+    }
+
+    public int getInt() {
+        return Integer.parseInt(nextToken());
+    }
+
+    public double getDouble() { 
+        return Double.parseDouble(nextToken());
+    }
+
+    public long getLong() {
+        return Long.parseLong(nextToken());
+    }
+
+    public String getWord() {
+        return nextToken();
+    }
+
+    private BufferedReader r;
+    private String line;
+    private StringTokenizer st;
+    private String token;
+
+    private String peekToken() {
+    if (token == null) 
+        try {
+        while (st == null || !st.hasMoreTokens()) {
+            line = r.readLine();
+            if (line == null) return null;
+            st = new StringTokenizer(line);
+        }
+        token = st.nextToken();
+        } catch (IOException e) { }
+        return token;
+    }
+
+    private String nextToken() {
+        String ans = peekToken();
+        token = null;
+        return ans;
     }
 }
