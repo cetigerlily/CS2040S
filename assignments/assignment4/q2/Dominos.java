@@ -1,62 +1,77 @@
 package q2;
 import java.util.*;
 
-// fix to count # to knock over = # of sets in graph
-
 public class Dominos {
-    static boolean[] visited;
+    static int numOfDominos;
+
+    static boolean[] sorted;
+    static boolean[] knockedOver;
+
     static HashMap<Integer, ArrayList<Integer>> dominos;
+    static Stack<Integer> sortedDominos;
 
-    public static void BFS(int input) {
-        Queue<Integer> queueOfDominos = new LinkedList<>();
-        ArrayList<Integer> nextDominos = dominos.get(input);
-
-        for(int i : nextDominos) {
-            queueOfDominos.add(i);
-        }
-
-        while(!queueOfDominos.isEmpty()) {
-            int currentDomino = queueOfDominos.poll();
-            if(!visited[currentDomino]) {
-                visited[currentDomino] = true;
-                ArrayList<Integer> currentNextDominos = dominos.get(currentDomino);
-                for(int i : currentNextDominos) {
-                    queueOfDominos.add(i);
-                }
+    public static void DFS(int id) {
+        knockedOver[id] = true;
+        for(int i = 0; i < dominos.get(id).size(); i++) {
+            int nextDomino = dominos.get(id).get(i);
+            if(!knockedOver[nextDomino]) {
+                DFS(nextDomino);
             }
         }
-    } 
+    }
+
+    public static void topoSort(int id) {
+        sorted[id] = true;
+        for(int i = 0; i < dominos.get(id).size(); i++) {
+            int nextDomino = dominos.get(id).get(i);
+            if(!sorted[nextDomino]) {
+                topoSort(dominos.get(id).get(i));
+            }
+        }
+        sortedDominos.push(id);
+    }
+
     public static void main(String[] args) {
         Kattio io = new Kattio(System.in, System.out);
-
         int numOfTestCases = io.getInt();
+
         for(int i = 0; i < numOfTestCases; i++) {
-            int numOfDominos = io.getInt();
+            numOfDominos = io.getInt();
             int numOfRelations = io.getInt();
 
             dominos = new HashMap<>(); // <domino id, next dominos>        
-            visited = new boolean[numOfDominos];
+            sorted = new boolean[numOfDominos];
 
             for(int j = 0; j < numOfDominos; j++) {
                 dominos.put(j, new ArrayList<>());
-                visited[j] = false;
+                sorted[j] = false;
             }
 
-            for(int j = 0; j < numOfRelations; j++) {
+            for(int j = 0; j < numOfRelations; j++) { // adjList
                 int start = io.getInt() - 1;
                 int end = io.getInt() - 1;
+
                 dominos.get(start).add(end);
             }
 
-            int numberToKnock = 0;
+            sortedDominos = new Stack<>();
             for(int j = 0; j < numOfDominos; j++) {
-                if(!visited[j]) {
-                    numberToKnock += 1;
-                    BFS(j);
+                if(!sorted[j]) {
+                    topoSort(j);
                 }
             }
 
-            io.println(numberToKnock);
+            knockedOver = new boolean[numOfDominos];
+            int numToKnock = 0;
+
+            while(!sortedDominos.empty()) {
+                int nextDomino = sortedDominos.pop();
+                if(!knockedOver[nextDomino]) {
+                    numToKnock += 1;
+                    DFS(nextDomino);
+                }
+            }
+            io.println(numToKnock);
         }
         io.flush();
     }
