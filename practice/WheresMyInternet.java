@@ -1,12 +1,11 @@
 import java.util.*;
 
-public class Internet {
+public class WheresMyInternet {
     static int numOfHouses; // vertices
     static int numOfNetworkCables; // edges
 
     static boolean[] visited;
     static HashMap<Integer, ArrayList<Integer>> houses;
-    static HashMap<Integer, ArrayList<Integer>> unconnectedHouses;
     
     public static void main(String[] args) {
         Kattio io = new Kattio(System.in, System.out);
@@ -29,39 +28,35 @@ public class Internet {
             houses.get(b).add(a); // also adding b->a since undirected
         }
 
-        int numOfComponents = 0;
-        unconnectedHouses = new HashMap<>();
+        boolean moreComponents = false;
+        DFS(0);
 
         for(int i = 0; i < numOfHouses; i++) {
             if(!visited[i]) {
-                unconnectedHouses.put(numOfComponents, new ArrayList<>());
-                DFS(i, unconnectedHouses.get(numOfComponents));
-                numOfComponents += 1;
+                moreComponents = true;
+                break;
             }
         }
 
-        if(numOfComponents == 1) {
+        if(!moreComponents) {
             io.println("Connected");
         } else {
-            for(int i = 1; i < numOfComponents; i++) {
-                ArrayList<Integer> currentComponent = unconnectedHouses.get(i);
-                Collections.sort(currentComponent);
-                for(int j : currentComponent) {
-                    io.println(j + 1);
+            for(int i = 0; i < numOfHouses; i++) {
+                if(!visited[i]) {
+                    io.println(i + 1);
                 }
             }
         }
         io.flush();
     }
     
-    public static void DFS(int house, ArrayList<Integer> thisComponent) {
+    public static void DFS(int house) {
         visited[house] = true;
-        thisComponent.add(house);
 
         for(int i = 0; i < houses.get(house).size(); i++) {
             int nextHouse = houses.get(house).get(i);
             if(!visited[nextHouse]) {
-                DFS(nextHouse, thisComponent);
+                DFS(nextHouse);
             }
         }
     }
