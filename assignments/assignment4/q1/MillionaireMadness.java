@@ -1,106 +1,145 @@
+import q2.Kattio;
 import java.util.*;
-import java.lang.*;
-import java.io.*;
 
 public class MillionaireMadness {
-    static int m;
-    static int n;
+    static int M;
+    static int N;
 
-    static CoinStack[][] coinGrid;
+    static int[][] coinstackHeight;
     static boolean[][] visited;
 
-    static ArrayList<Ladder> pathTaken; // list of ladders used for min path 
-    static PriorityQueue<Ladder> queue;
+    static PriorityQueue<Ladder> pq;
+    static ArrayList<Ladder> pathTaken;
 
-    // number of vertices = m * n
+    static int[] moveM = {0, 0, 1, -1};
+    static int[] moveN = {1, -1, 0, 0};
+
+    public static void BFS(Coinstack input) {
+        // make new ladders for each of the neighbours and add it to the pq
+
+        for(int i = 0; i < 4; i++) {
+            int newM = input.getM() + moveM[i];
+            int newN = input.getN() + moveN[i];
+
+            if((newM >= 0) && (newM < M) && (newN >= 0) && (newN < N) && (!visited[newM][newN])) {
+                visited[newM][newN] = true;
+                Coinstack neighbourCoinstack = new Coinstack(newM, newN);
+                int difference = Math.max(0, neighbourCoinstack.getHeight() - input.getHeight());
+                pq.add(new Ladder(difference, input, neighbourCoinstack));
+            }
+        }
+    }
 
     public static void main(String[] args) {
         Kattio io = new Kattio(System.in, System.out);
-        m = io.getInt();
-        n = io.getInt();
+        
+        M = io.getInt(); // rows
+        N = io.getInt(); // columns
+        coinstackHeight = new int[M][N];
+        visited = new boolean[M][N];
 
-        coinGrid = new CoinStack[m][n];
-        visited = new boolean[m][n];
-        pathTaken = new ArrayList<>();
-        queue = new PriorityQueue<>();
-
-        for(int i = 0; i < m; i++) {
-            for(int j = 0; j < n; j++) {
-                coinGrid[i][j] = new CoinStack(i, j, io.getInt());
+        for(int i = 0; i < M; i++) {
+            for(int j = 0; j < N; j++) {
+                coinstackHeight[i][j] = io.getInt();
                 visited[i][j] = false;
             }
         }
-        
-        CoinStack NW = coinGrid[0][0];
-        CoinStack SE = coinGrid[m - 1][n - 1];
 
-        queue.add(new Ladder(NW, NW));
+        pq = new PriorityQueue<>(); // PQ of ladders
+        pathTaken = new ArrayList<>();
+        Coinstack start = new Coinstack(0, 0);
+        Coinstack end = new Coinstack(M - 1, N - 1);
 
-        while(!queue.isEmpty()) {
-            Ladder current = queue.poll();
+        pq.add(new Ladder(0, start, start));
+        while(!pq.isEmpty()) {
+            Ladder thisLadder = pq.poll();
 
-            if(!visited[current.getEnd().getX()][current.getEnd().getY()]) {
-                visited[current.getEnd().getX()][current.getEnd().getY()] = true;
-                pathTaken.add(current);
-                BFS(current.getEnd());
+            if((thisLadder.getEnd().getM() == M - 1) && (thisLadder.getEnd().getN() == N - 1)) {
+                System.out.println("Reached the end");
+                break;
+            }
 
-                if(current.getEnd().equals(SE)) {
-                    System.out.println("stopping search now...");
-                    break;
-                }
+            if(!visited[thisLadder.getEnd().getM()][thisLadder.getEnd().getN()]) {
+                visited[thisLadder.getEnd().getM()][thisLadder.getEnd().getN()] = true;
+                pathTaken.add(thisLadder);
+                BFS(thisLadder.getEnd());
             }
         }
 
-        // ERROR: it just returns the original value of shortestLadder
         int shortestLadder = 0;
-        for(Ladder ladder : pathTaken) {
-            if(ladder.getLength() > shortestLadder) {
-                shortestLadder = ladder.getLength();
+        for(int i = 0; i < pathTaken.size(); i++) {
+            if(pathTaken.get(i).getLength() > shortestLadder) {
+                shortestLadder = pathTaken.get(i).getLength();
             }
         }
 
         io.println(shortestLadder);
         io.flush();
     }
+}
 
-    public static void BFS(CoinStack input) {
-        int thisX = input.getX();
-        int thisY = input.getY();
+class Coinstack {
+    private int m;
+    private int n;
+    private int height;
 
-        if((thisX - 1 >= 0) && (!visited[thisX - 1][thisY])) { // above: m - 1, n
-        // check condition and if it has been visited already or not
-            visited[thisX - 1][thisY] = true;
-            CoinStack neighbour = coinGrid[thisX - 1][thisY];
-            Ladder thisLadder = new Ladder(input, neighbour);
-            System.out.println("A");
-            queue.add(thisLadder);
+    public Coinstack(int m, int n) {
+        this.m = m;
+        this.n = n;
+    }
+
+    public int getM() {
+        return this.m;
+    }
+
+    public int getN() {
+        return this.n;
+    }
+
+    public int getHeight() {
+        return MillionaireMadness.coinstackHeight[this.getM()][this.getN()];
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if(object.getClass() != this.getClass()) {
+            return false;
+        } else {
+            Coinstack temp = (Coinstack) object;
+            if((this.getM() == temp.getM()) && (this.getN() == temp.getN())) {
+                return true;
+            } else {
+                return false;
+            }
         }
+    }
+}
 
-        // below: m + 1, n
-        if(thisX + 1 < m) {
-            visited[thisX + 1][thisY] = true;
-            CoinStack neighbour = coinGrid[thisX + 1][thisY];
-            Ladder thisLadder = new Ladder(input, neighbour);
-            System.out.println("B");
-            queue.add(thisLadder);
-        }
+class Ladder implements Comparable<Ladder> {
+    private int length;
+    private Coinstack start;
+    private Coinstack end;
+    
+    public Ladder(int length, Coinstack start, Coinstack end) {
+        this.length = length;
+        this.start = start;
+        this.end = end;
+    }
 
-        // left: m, n - 1
-        if(thisY - 1 >= 0) {
-            visited[thisX][thisY - 1] = true;
-            CoinStack neighbour = coinGrid[thisX][thisY - 1];
-            Ladder thisLadder = new Ladder(input, neighbour);
-            System.out.println("C");
-            queue.add(thisLadder);
-        }
+    public int getLength() {
+        return this.length;
+    }
 
-        // right: m, n + 1
-        if(thisY + 1 < n) {
-            visited[thisX][thisY + 1] = true;
-            CoinStack neighbour = coinGrid[thisX][thisY + 1];
-            Ladder thisLadder = new Ladder(input, neighbour);
-            System.out.println("D");
-            queue.add(thisLadder);
-        }
+    public Coinstack getStart() {
+        return this.start;
+    }
+
+    public Coinstack getEnd() {
+        return this.end;
+    }
+
+    @Override
+    public int compareTo(Ladder other) {
+        return this.getLength() - other.getLength();
     }
 }
