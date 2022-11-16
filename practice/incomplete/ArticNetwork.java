@@ -1,74 +1,69 @@
 import java.util.*;
 
-public class ArticNetwork {
+public class ArcticNetwork {
     public static void main(String[] args) {
         Kattio io = new Kattio(System.in, System.out);
         int numOfTestCases = io.getInt();
 
         for(int i = 0; i < numOfTestCases; i++) {
-            int numOfSatellite = io.getInt();
-            int numOfOutpost = io.getInt();
+            int numOfSatellites = io.getInt();
+            int numOfOutposts = io.getInt();
 
-            boolean[] visited = new boolean[numOfOutpost];
-            Outpost[] outposts = new Outpost[numOfOutpost];
-            double[] distances = new double[numOfOutpost]; // minimum distances needed to reach a certain outpost
-
-            for(int j = 0; j < numOfOutpost; j++) {
+            boolean[] visited = new boolean[numOfOutposts]; // visited[i] = whether or not outpost i has been visited
+            Outpost[] outposts = new Outpost[numOfOutposts];
+            for(int j = 0; j < numOfOutposts; j++) {
                 int x = io.getInt();
                 int y = io.getInt();
 
+                outposts[j] = new Outpost(x, y);
                 visited[j] = false;
-                outposts[j] = new Outpost(x, y, j);
-                distances[j] = Double.MAX_VALUE;
             }
 
-            double[][] adjMatrix = new double[numOfOutpost][numOfOutpost];
-            for(int j = 0; j < numOfOutpost; j++) {
-                for(int k = 0; k < numOfOutpost; k++) {
-                    double distance = Math.hypot(Math.abs(outposts[j].getX() - outposts[k].getX()), Math.abs(outposts[j].getY() - outposts[k].getY()));
-                    adjMatrix[j][k] = distance;
-                }
-            }
-
-            int numOfConnected = 0;
-
-            Distance start = new Distance(outposts[0], adjMatrix[0][0]);
-            PriorityQueue<Distance> pq = new PriorityQueue<>();
-
-            pq.add(start);
-            while(!pq.isEmpty()) {
-                Distance thisDistance = pq.poll();
-                if(!visited[thisDistance.getStart().getIndex()]) {
-                    visited[thisDistance.getStart().getIndex()] = true;
-                }
-
-                for(int j = 0; j < numOfOutpost; j++) {
-                    if((!visited[j]) && (i != thisDistance.getStart().getIndex())) {
-                        double newDistance = thisDistance.getLength() + adjMatrix[thisDistance.getStart().getIndex()][j];
-                        if(distances[j] > newDistance) {
-                            distances[j] = newDistance;
-                            pq.add(new Distance(outposts[j], distances[j]));
-                        }
+            PriorityQueue<Line> pq = new PriorityQueue<>();
+            // distances from 1 outpost to all other outposts
+            for(int j = 0; j < numOfOutposts; j++) {
+                for(int k = 0; k < numOfOutposts; k++) {
+                    if(j != k) {
+                        double distance = Math.hypot(outposts[j].getX() - outposts[k].getX(), outposts[j].getY() - outposts[k].getY());
+                        pq.add(new Line(k, distance));
                     }
                 }
             }
 
-            // have to do a different "stop" measure since not all have to be connected
+            int numOfLinesNeeded = numOfOutposts - 1 - numOfSatellites;
+            double[] distances = new double[numOfLinesNeeded];
 
-            io.flush();
+            for(int j = 0; j < numOfLinesNeeded; j++) {
+                Line thisLine = pq.poll();
+                io.println("current index checking is " + thisLine.getEndIndex());
+                if(!visited[thisLine.getEndIndex()]) {
+                    visited[thisLine.getEndIndex()] = true;
+                    distances[j] = thisLine.getLength();
+                    io.println("adding... " + thisLine.getLength());
+                }
+            }
+            
+            double d = 0;
+            for(int j = 0; j < numOfLinesNeeded; j++) {
+                io.println(j + " " + distances[j]);
+                if(distances[j] > d) {
+                    d = distances[j];
+                }
+            }
+            io.println(d);
         }
+        io.flush();
+        io.close();
     }
 }
 
 class Outpost {
     private int x;
     private int y;
-    private int index;
 
-    public Outpost(int x, int y, int index) {
+    public Outpost(int x, int y) {
         this.x = x;
         this.y = y;
-        this.index = index;
     }
 
     public int getX() {
@@ -78,23 +73,19 @@ class Outpost {
     public int getY() {
         return this.y;
     }
-
-    public int getIndex() {
-        return this.index;
-    }
 }
 
-class Distance implements Comparable<Distance> {
-    private Outpost start;
+class Line implements Comparable<Line> {
+    private int endIndex;
     private double length;
 
-    public Distance(Outpost start, double length) {
-        this.start = start;
+    public Line(int endIndex, double length) {
+        this.endIndex = endIndex;
         this.length = length;
     }
 
-    public Outpost getStart() {
-        return this.start;
+    public int getEndIndex() {
+        return this.endIndex;
     }
 
     public double getLength() {
@@ -102,10 +93,11 @@ class Distance implements Comparable<Distance> {
     }
 
     @Override
-    public int compareTo(Distance other) {
-        if(this.getLength() > other.getLength()) {
+    public int compareTo(Line other) {
+        double result = this.getLength() - other.getLength();
+        if(result > 0) {
             return 1;
-        } else if(this.getLength() < other.getLength()) {
+        } else if(result < 0) {
             return -1;
         } else {
             return 0;
