@@ -18,30 +18,39 @@ public class IntegerLists {
                 elements = new String[0];
             }
 
-            LinkedList<Integer> queue = new LinkedList<>();
+            LinkedList<Integer> deque = new LinkedList<>();
             for(int j = 0; j < numOfElements; j++) {
-                queue.addLast(Integer.parseInt(elements[j]));
+                deque.addLast(Integer.parseInt(elements[j]));
             }
 
-            boolean hasResult = true;
+            boolean isReversed = false;
+            boolean hasResult = true; // becomes false when it's empty
+
             for(int j = 0; j < commands.length; j++) {
                 String currCommand = commands[j];
                 if(currCommand.equals("R")) {
-                    Collections.reverse(queue);
+                    isReversed = !isReversed;
                 }
 
                 if(currCommand.equals("D")) {
-                    if(queue.isEmpty()) {
+                    if(deque.isEmpty()) {
                         hasResult = false;
                         break;
                     } else {
-                        queue.removeFirst();
+                        if(isReversed) {
+                            deque.removeLast();
+                        } else if (!isReversed) {
+                            deque.removeFirst();
+                        }
                     }
                 }
             }
 
             if(hasResult) {
-                String result = queue.toString().replaceAll("\\s", "");
+                if(isReversed) {
+                    Collections.reverse(deque);
+                }
+                String result = deque.toString().replaceAll("\\s", "");
                 io.println(result);
             } else {
                 io.println("error");
