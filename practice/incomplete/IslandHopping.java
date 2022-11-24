@@ -1,67 +1,80 @@
-// over time limit
 import java.util.*;
 
 public class IslandHopping {
     public static void main(String[] args) {
         Kattio io = new Kattio(System.in, System.out);
-        int numOfCases = io.getInt();
-
-        for(int i = 0; i < numOfCases; i++) {
+        int numOfTestCases = io.getInt();
+        for(int i = 0; i < numOfTestCases; i++) {
             int numOfIslands = io.getInt();
+            int[] parent = new int[numOfIslands];
 
-            boolean[] visited = new boolean[numOfIslands];
-            Island[] islands = new Island[numOfIslands];
-            double[][] adjMatrix = new double[numOfIslands][numOfIslands]; // islands[i][j] = distance between i and j
+            double[] xCoordinate = new double[numOfIslands];
+            double[] yCoordinate = new double[numOfIslands];
 
             for(int j = 0; j < numOfIslands; j++) {
+                parent[j] = j; // islands are all initially seperate
                 double x = io.getDouble();
                 double y = io.getDouble();
 
-                visited[j] = false;
-                islands[j] = new Island(x, y);
+                xCoordinate[j] = x;
+                yCoordinate[j] = y;
+
             }
 
+            ArrayList<Bridge> bridges = new ArrayList<>(); // edge list
             for(int j = 0; j < numOfIslands; j++) {
                 for(int k = 0; k < numOfIslands; k++) {
-                    double distance = Math.hypot(islands[j].getX() - islands[k].getX(), islands[j].getY() - islands[k].getY());
-                    adjMatrix[j][k] = distance;
-                }
-            }
-
-            PriorityQueue<Bridge> pq = new PriorityQueue<>();
-            visited[0] = true;
-
-            for(int j = 1; j < numOfIslands; j++) {
-                pq.add(new Bridge(j, adjMatrix[0][j]));
-            }
-
-            double sumOfLengths = 0;
-            while(!pq.isEmpty()) {
-                Bridge thisBridge = pq.poll();
-                if(!visited[thisBridge.getEndIsland()]) {
-                    visited[thisBridge.getEndIsland()] = true;
-                    sumOfLengths += thisBridge.getLength();
-
-                    int endIndex = thisBridge.getEndIsland();
-                    for(int j = 0; j < numOfIslands; j++) {
-                        if(j != endIndex) {
-                            pq.add(new Bridge(j, adjMatrix[endIndex][j]));
-                        }
+                    if(j != k) {
+                        double distance = Math.hypot(xCoordinate[j] - xCoordinate[k], yCoordinate[j] - yCoordinate[k]);
+                        bridges.add(new Bridge(distance, j, k));
                     }
                 }
             }
-            io.println(sumOfLengths);
+
+            Collections.sort(bridges);
+            double totalLength = 0;
+            int numOfBridges = 0;
+            
+            // add num of islands - 1
+            for(int j = 0; j < bridges.size(); j++) {
+                Bridge shortestBridge = bridges.get(0);
+                if(findSet(shortestBridge.getStart(), parent) != findSet(shortestBridge.getEnd(), parent)) {
+                    totalLength += shortestBridge.getLength();
+                    numOfBridges += 1;
+                }
+
+                if(numOfBridges == numOfIslands - 1) {
+                    break;
+                }
+            }
+
+            io.println(totalLength);
         }
         io.flush();
         io.close();
     }
+
+    public static int findSet(int index, int[] parent) {
+        if(parent[index] == index) {
+            return index;
+        } else {
+            return findSet(parent[index], parent);
+        }
+    }
+
+    public static void unionSet(int i, int j, int[] parent) {
+        int parentI = findSet(i, parent);
+        int parentJ = findSet(j, parent);
+
+        parent[parentI] = parentJ;
+    }
 }
 
-class Island {
+class Point {
     private double x;
     private double y;
 
-    public Island(double x, double y) {
+    public Point(double x, double y) {
         this.x = x;
         this.y = y;
     }
@@ -76,20 +89,26 @@ class Island {
 }
 
 class Bridge implements Comparable<Bridge> {
-    private int endIsland;
     private double length;
+    private int startIsland;
+    private int endIsland;
 
-    public Bridge(int endIsland, double length) {
-        this.endIsland = endIsland;
+    public Bridge(double length, int startIsland, int endIsland) {
         this.length = length;
+        this.startIsland = startIsland;
+        this.endIsland = endIsland;
     }
 
-    public int getEndIsland() {
-        return this.endIsland;
-    }
-    
     public double getLength() {
         return this.length;
+    }
+
+    public int getStart() {
+        return this.startIsland;
+    }
+
+    public int getEnd() {
+        return this.endIsland;
     }
 
     @Override
